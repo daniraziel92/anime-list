@@ -2,6 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import ItemAnime from './components/ItemAnime/ItemAnime';
 import React from 'react';
+import Title from './components/Title/Title'
 
 const sample = {
   mal_id: 1,
@@ -155,15 +156,37 @@ const sample = {
 
 function App() {
   const [listAnime,setListAnime] =  React.useState([]);
+  const [displayAnime,setDisplayAnime] =  React.useState([]);
+  const[search, setSearch] = React.useState("");
+  const inputFilter = React.useRef(null);
   React.useEffect( () => {
     fetch("https://api.jikan.moe/v4/anime")
-    .then(response => response.json())
-    .then(responseJson => {setListAnime(responseJson.data)})
+    .then((response) => response.json())
+    .then((responseJson) => {
+        setListAnime(responseJson.data);
+        setDisplayAnime(responseJson.data);})
   },[]);
+
+  React.useEffect( ()=>{
+    if(inputFilter && inputFilter.current){
+        inputFilter.current.addEventListener('keyup',(e)=> {setSearch(e.target.value);})
+    }
+    }
+  ,[])
+
+  React.useEffect(() =>{
+    const filteredData = listAnime.filter((anime) =>{ 
+    return anime.title.toLowerCase().includes(search.toLowerCase()); 
+    });
+  setDisplayAnime(filteredData);
+},[search]);
+
+  
   return (
     <div className="App">
-      <h1>Anime List</h1>
-      {listAnime.map(anime => <ItemAnime 
+      <Title text ="Anime-List"/>
+      <input ref={inputFilter}></input>
+      {displayAnime.map(anime => <ItemAnime 
           name={anime.title} 
           synopsis={anime.synopsis} 
           image={anime.images.jpg.image_url} 
@@ -171,7 +194,6 @@ function App() {
           status = {anime.status}
           rating={anime.rating}/>
         )
-
       }
 
 
