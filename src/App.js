@@ -152,20 +152,27 @@ const sample = {
   demographics: []
 }
 
-
+const limit = 25;
 
 function App() {
   const [listAnime,setListAnime] =  React.useState([]);
   const [displayAnime,setDisplayAnime] =  React.useState([]);
   const[search, setSearch] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const offSet = page*limit;
   const inputFilter = React.useRef(null);
-  React.useEffect( () => {
-    fetch("https://api.jikan.moe/v4/anime")
+
+const fetchData = () =>{
+    fetch("https://api.jikan.moe/v4/anime?limit="+limit+"&page="+page)
     .then((response) => response.json())
     .then((responseJson) => {
         setListAnime(responseJson.data);
         setDisplayAnime(responseJson.data);})
-  },[]);
+}
+
+  React.useEffect( () => {
+    fetchData();
+  },[page]);
 
   React.useEffect( ()=>{
     if(inputFilter && inputFilter.current){
@@ -181,7 +188,12 @@ function App() {
   setDisplayAnime(filteredData);
 },[search]);
 
-  
+  const next = ()=>{
+    console.log("cualquier cosa");
+    setPage(page => page+1);
+    
+  }
+  console.log(page);
   return (
     <div className="App">
       <Title text ="Anime-List"/>
@@ -195,6 +207,7 @@ function App() {
           rating={anime.rating}/>
         )
       }
+      <button onClick={next}>Next</button>
 
 
     </div>
